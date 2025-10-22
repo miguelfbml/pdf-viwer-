@@ -1,67 +1,38 @@
 ﻿<!DOCTYPE html>
-<html dir="ltr" mozdisallowselectionprint>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="google" content="notranslate">
-    <title>PDF.js viewer</title>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PDF Viewer</title>
+  <style>
+    * { margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    #viewer { width: 100vw; height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="viewer" class="pdfViewer"></div>
 
-    <link rel="resource" type="application/l10n" href="locale/locale.json">
-    <link rel="stylesheet" href="viewer.css">
+  <!-- PDF.js -->
+  <script src="pdf.mjs" type="module"></script>
 
-    <!-- PDF.js Core -->
-    <script src="pdf.mjs" type="module"></script>
-    <!-- Viewer Logic -->
-    <script src="viewer.mjs" type="module"></script>
+  <script type="module">
+    import { GlobalWorkerOptions, getDocument, PDFViewer } from "./pdf.mjs";
 
-    <!-- SET YOUR PDF HERE -->
-    <script type="module">
-      window.DEFAULT_URL = 'document.pdf';  // ← make sure this matches your PDF filename
-    </script>
-  </head>
+    // Set worker
+    GlobalWorkerOptions.workerSrc = "pdf.worker.mjs";
 
-  <body tabindex="0">
-    <!-- [REST OF YOUR HTML BELOW - KEEP IT EXACTLY AS IS] -->
-    <div id="outerContainer">
-      <span id="viewer-alert" class="visuallyHidden" role="alert"></span>
+    // Load your PDF
+    const loadingTask = getDocument("document.pdf");
+    const pdfViewer = new PDFViewer({
+      container: document.getElementById("viewer"),
+    });
 
-      <div id="sidebarContainer">
-        <!-- [Sidebar code - keep unchanged] -->
-        <div id="toolbarSidebar" class="toolbarHorizontalGroup">
-          <!-- ... all your sidebar buttons ... -->
-        </div>
-        <div id="sidebarContent">
-          <div id="thumbnailView"></div>
-          <div id="outlineView" class="hidden"></div>
-          <div id="attachmentsView" class="hidden"></div>
-          <div id="layersView" class="hidden"></div>
-        </div>
-        <div id="sidebarResizer"></div>
-      </div>
-
-      <div id="mainContainer">
-        <div class="toolbar">
-          <div id="toolbarContainer">
-            <!-- [Keep all toolbar code] -->
-            <div id="toolbarViewer" class="toolbarHorizontalGroup">
-              <!-- ... -->
-            </div>
-            <div id="loadingBar">
-              <div class="progress"><div class="glimmer"></div></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="viewerContainer" tabindex="0">
-          <div id="viewer" class="pdfViewer"></div>
-        </div>
-      </div>
-
-      <div id="dialogContainer">
-        <!-- [Keep all dialogs] -->
-      </div>
-
-      <div id="printContainer"></div>
-    </div>
-  </body>
+    loadingTask.promise.then(pdf => {
+      pdfViewer.setDocument(pdf);
+    }).catch(err => {
+      document.body.innerHTML = `<p style="color:red;padding:20px;">Error loading PDF: ${err.message}</p>`;
+    });
+  </script>
+</body>
 </html>
