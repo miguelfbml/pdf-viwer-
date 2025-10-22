@@ -5,33 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PDF Viewer</title>
   <style>
-    * { margin: 0; padding: 0; }
-    html, body { height: 100%; overflow: hidden; }
-    #viewer { width: 100vw; height: 100vh; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body, html { height:100%; overflow:hidden; background:#333; }
+    #viewer { width:100vw; height:100vh; }
   </style>
 </head>
 <body>
-  <div id="viewer" class="pdfViewer"></div>
-
-  <!-- PDF.js -->
-  <script src="pdf.mjs" type="module"></script>
+  <div id="viewer"></div>
 
   <script type="module">
-    import { GlobalWorkerOptions, getDocument, PDFViewer } from "./pdf.mjs";
+    import { GlobalWorkerOptions, getDocument, version } from './pdf.mjs';
+    GlobalWorkerOptions.workerSrc = 'pdf.worker.mjs';
 
-    // Set worker
-    GlobalWorkerOptions.workerSrc = "pdf.worker.mjs";
+    const url = 'document.pdf';
+    const container = document.getElementById('viewer');
 
-    // Load your PDF
-    const loadingTask = getDocument("document.pdf");
-    const pdfViewer = new PDFViewer({
-      container: document.getElementById("viewer"),
-    });
-
-    loadingTask.promise.then(pdf => {
-      pdfViewer.setDocument(pdf);
+    getDocument(url).promise.then(pdf => {
+      let pageNum = 1;
+      const renderPage = num => {
+        pdf.getPage(num).then(page => {
+          const scale = window.innerWidth < 500 ? 1.2 : 1.5;
+          const viewport = page.getViewport({ scale });
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+          container.appendChild(canvas);
+          page.render({ canvasContext: ctx, viewport }).promise.then(() => {
+            if (num < pdf.numPages) {
+              pageNum++;
+              renderPage(pageNum);
+            }
+          });
+        });
+      };
+      renderPage(pageNum);
     }).catch(err => {
-      document.body.innerHTML = `<p style="color:red;padding:20px;">Error loading PDF: ${err.message}</p>`;
+      container.innerHTML = `<p style="color:white;padding:20px;">Error: ${err.message}</p>`;
     });
   </script>
 </body>
