@@ -33,7 +33,11 @@ See https://github.com/adobe-type-tools/cmap-resources
 
     <link rel="stylesheet" href="viewer.css">
 
-  <script src="viewer.mjs" type="module"></script>
+
+
+  <script src="viewer.mjs" type="module">
+    const DEFAULT_URL = 'document.pdf';
+  </script>
   </head>
 
   <body tabindex="0">
@@ -298,13 +302,15 @@ See https://github.com/adobe-type-tools/cmap-resources
                 <div id="editorModeSeparator" class="verticalToolbarSeparator"></div>
 
                 <div class="toolbarHorizontalGroup hiddenMediumView">
+                  <!--
                   <button id="printButton" class="toolbarButton" type="button" tabindex="0" data-l10n-id="pdfjs-print-button">
                     <span data-l10n-id="pdfjs-print-button-label"></span>
                   </button>
+                  -->
 
-                  <button id="downloadButton" class="toolbarButton" type="button" tabindex="0" data-l10n-id="pdfjs-save-button">
+                  <!--<button id="downloadButton" class="toolbarButton" type="button" tabindex="0" data-l10n-id="pdfjs-save-button">
                     <span data-l10n-id="pdfjs-save-button-label"></span>
-                  </button>
+                  </button> -->
                 </div>
 
                 <div class="verticalToolbarSeparator hiddenMediumView"></div>
